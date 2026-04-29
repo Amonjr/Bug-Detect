@@ -1,0 +1,1048 @@
+{
+    "doc": {
+        "help": "Issue tracker.",
+        "usage": [
+            "--help",
+            "--version",
+            "open [--tag <tag>]... [--milestone <milestone>]... \"<description>\"",
+            "close [--message \"<message>\"] <id>..."
+        ],
+        "examples": [
+            {
+                "line": "open --tag bug --tag urgent \"Oh noes! The program crashez.\"",
+                "desc": "open new issue with tags \"bug\" and \"urgent\" with given description"
+            }
+        ]
+    },
+    "options": {
+        "global": [
+            {
+                "short": "h",
+                "long": "help",
+                "help": "display help message"
+            },
+            {
+                "short": "v",
+                "long": "verbose",
+                "help": "display verbose output"
+            }
+        ],
+        "local": [
+            {
+                "long": "version",
+                "help": "show version"
+            },
+            {
+                "long": "pack",
+                "conflicts": ["--nuke"],
+                "help": "pack information about objects for remote fetchers"
+            },
+            {
+                "long": "nuke",
+                "conflicts": ["--pack"],
+                "plural": true,
+                "help": "remove the repository, use --nuke --nuke to silence errors about nonexistent repositories"
+            },
+            {
+                "long": "where",
+                "help": "locate the repository, assumes cwd is a subdirectory of a repo"
+            }
+        ]
+    },
+    "commands": {
+        "init": {
+            "doc": {
+                "help": "Create new issues repository.",
+                "usage": [
+                    "init [--force | --up] [--exchange]"
+                ],
+                "examples": [
+                    {
+                        "line": "--up --exchange",
+                        "desc": "upgrade existing repository from endpoint to exchange status"
+                    }
+                ]
+            },
+            "options": {
+                "local": [
+                    {
+                        "long": "force",
+                        "short": "f",
+                        "conflicts": ["--up"],
+                        "help": "force initialisation of the repository (removes previous repository if one was already initialised)"
+                    },
+                    {
+                        "long": "exchange",
+                        "short": "e",
+                        "help": "initialise the repository as an exchange (allowing pushes)"
+                    },
+                    {
+                        "long": "up",
+                        "short": "u",
+                        "conflicts": ["--force"],
+                        "help": "upgrade repository to newer version, creating additional structures as needed"
+                    }
+                ]
+            },
+            "operands": {
+                "no": [0, 1],
+                "help": {
+                    "names": ["where"]
+                }
+            }
+        },
+        "open": {
+            "doc": {
+                "help": "Open new issues.",
+                "usage": [
+                    "open [--tag <tag>]... [--milestone <name>]... \"short description of the issue\""
+                ]
+            },
+            "options": {
+                "local": [
+                    {
+                        "long": "tag",
+                        "short": "t",
+                        "arguments": ["name:str"],
+                        "plural": 1,
+                        "help": "add tag to the issue"
+                    },
+                    {
+                        "long": "milestone",
+                        "short": "M",
+                        "arguments": ["name:str"],
+                        "plural": 1,
+                        "help": "attach the issue to a milestone"
+                    },
+                    {
+                        "long": "git",
+                        "short": "g",
+                        "help": "instead of SHA1 of the issue print its Git-ready branch name"
+                    },
+                    {
+                        "long": "param",
+                        "short": "p",
+                        "arguments": ["key:str", "value:str"],
+                        "plural": true,
+                        "help": "set a parameter on the issue"
+                    },
+                    {
+                        "long": "chain-to",
+                        "short": "c",
+                        "arguments": ["issue-uid:str"],
+                        "plural": true,
+                        "help": "chain opened issue to the one identified by this parameter"
+                    },
+                    {
+                        "long": "parent",
+                        "short": "P",
+                        "arguments": ["uid of parent issue:str"],
+                        "help": "set a parent on the issue; what is the difference between this parameter and the --chain-to? there can be only one parent. An issue is automatically chained to its parent. Parent is a \"main\" chain."
+                    }
+                ]
+            },
+            "operands": {
+                "no": [0, 1],
+                "help": {
+                    "names": ["description"]
+                }
+            }
+        },
+        "close": {
+            "doc": {
+                "help": "Close opened issues.",
+                "usage": [
+                    "close (<sha1> | <name>)"
+                ]
+            },
+            "options": {
+                "local": [
+                    {
+                        "short": "i",
+                        "arguments": ["str"],
+                        "help": "issue SHA1 identifier"
+                    },
+                    {
+                        "short": "g",
+                        "long": "git-commit",
+                        "arguments": ["str"],
+                        "help": "SHA1 of the Git commit used to close the issue"
+                    },
+                    {
+                        "long": "last",
+                        "help": "close last active issue"
+                    },
+                    {
+                        "short": "t",
+                        "long": "timestamp",
+                        "arguments": ["%Y-%m-%dT%H:%M:%S:str"],
+                        "help": "use as timestamp"
+                    }
+                ]
+            },
+            "operands": {
+                "no": [1, 1],
+                "help": {
+                    "names": ["issue"]
+                },
+                "with": {
+                    "--last": [0, 0]
+                }
+            }
+        },
+        "ls": {
+            "doc": {
+                "help": "List issues.",
+                "usage": [
+                    "ls [--open | --closed]"
+                ]
+            },
+            "options": {
+                "local": [
+                    {
+                        "short": "o",
+                        "long": "open",
+                        "conflicts": ["--closed"],
+                        "help": "list only open issues"
+                    },
+                    {
+                        "short": "c",
+                        "long": "closed",
+                        "conflicts": ["--open"],
+                        "help": "list only closed issues"
+                    },
+                    {
+                        "short": "s",
+                        "long": "status",
+                        "arguments": ["str"],
+                        "plural": 1,
+                        "help": "filter by given <status>"
+                    },
+                    {
+                        "short": "d",
+                        "long": "details",
+                        "help": "show more details about each issue"
+                    },
+                    {
+                        "short": "t",
+                        "long": "tag",
+                        "arguments": ["str"],
+                        "plural": 1,
+                        "help": "filter by given <tag>"
+                    },
+                    {
+                        "short": "a",
+                        "long": "author",
+                        "arguments": ["str"],
+                        "help": "show issues opened or closed by given author"
+                    },
+                    {
+                        "short": "S",
+                        "long": "since",
+                        "arguments": ["str"],
+                        "plural": true,
+                        "help": "show issues no older than given date specifier"
+                    },
+                    {
+                        "short": "U",
+                        "long": "until",
+                        "arguments": ["str"],
+                        "plural": true,
+                        "help": "show only issues older than given date specifier"
+                    },
+                    {
+                        "short": "r",
+                        "long": "recent",
+                        "conflicts": ["--since"],
+                        "help": "show recently changed (opened or closed) issues, defaults to 1 day but can be adjusted with \"defaults.time.recent\" config"
+                    },
+                    {
+                        "short": "p",
+                        "long": "priority",
+                        "help": "order issues by priority (priority 0 is the highest)"
+                    },
+                    {
+                        "short": "C",
+                        "long": "chained-to",
+                        "arguments": ["str"],
+                        "help": "list only issues chained to selected one"
+                    }
+                ]
+            }
+        },
+        "drop": {
+            "doc": {
+                "help": "Drop issues.",
+                "usage": [
+                    "drop (<sha1> | <name>)"
+                ]
+            },
+            "options": {
+                "local": [
+                    {
+                        "long": "last",
+                        "help": "drop last active issue"
+                    }
+                ]
+            },
+            "operands": {
+                "with": {
+                    "--last": [1, 1]
+                }
+            }
+        },
+        "slug": {
+            "doc": {
+                "help": "Print sluggified issue message.",
+                "usage": [
+                    "slug <sha1>"
+                ],
+                "examples": [
+                    {
+                        "line": "-gBC <sha1>",
+                        "desc": "sluggify <sha1> issue, and checkout to a newly created Git branch with the same name"
+                    }
+                ]
+            },
+            "options": {
+                "local": [
+                    {
+                        "short": "g",
+                        "long": "git",
+                        "conflicts": ["--format"],
+                        "help": "format slug in the Git-ready format"
+                    },
+                    {
+                        "short": "B",
+                        "long": "git-branch",
+                        "help": "create new Git branch using the slug as branch name"
+                    },
+                    {
+                        "short": "C",
+                        "long": "git-checkout",
+                        "help": "checkout Git branch with the same name as generated slug"
+                    },
+                    {
+                        "short": "f",
+                        "long": "format",
+                        "arguments": ["format:str"],
+                        "conflicts": ["--git"],
+                        "help": "use custom slug format"
+                    },
+                    {
+                        "short": "F",
+                        "long": "use-format",
+                        "arguments": ["str"],
+                        "conflicts": ["--git", "--format"],
+                        "help": "use preset slug format (set it with 'slug.format.<name>' config key)"
+                    },
+                    {
+                        "short": "p",
+                        "long": "param",
+                        "arguments": ["str", "str"],
+                        "conflicts": ["--git"],
+                        "wants": ["--format", "--use-format"],
+                        "plural": true,
+                        "help": "add parameter to use with format"
+                    },
+                    {
+                        "long": "last",
+                        "help": "sluggify last active issue"
+                    },
+                    {
+                        "short": "Z",
+                        "requires": ["--git-branch"],
+                        "help": "override the slug.allow_branching_from setting and force the branch to be created"
+                    },
+                    {
+                        "short": "a",
+                        "long": "append",
+                        "arguments": ["suffix to append:str"],
+                        "help": "append a suffix to a branch name (useful for creating review branches)"
+                    }
+                ]
+            },
+            "operands": {
+                "no": [1, 1],
+                "help": {
+                    "names": ["issue"]
+                },
+                "with": {
+                    "--last": [0, 0]
+                }
+            }
+        },
+        "comment": {
+            "doc": {
+                "help": "Comment on an issue.",
+                "usage": [
+                    "comment <sha1> <message>"
+                ]
+            },
+            "options": {
+                "local": [
+                    {
+                        "long": "last",
+                        "help": "make a commant on last active issue"
+                    },
+                    {
+                        "short": "m",
+                        "long": "message",
+                        "arguments": ["message text:str"],
+                        "help": "use this message"
+                    }
+                ]
+            },
+            "operands": {
+                "no": [1, 2],
+                "help": {
+                    "names": ["issue", "comment"]
+                },
+                "with": {
+                    "--last": [0, 1],
+                    "--message": [0, 1]
+                }
+            }
+        },
+        "tag": {
+            "doc": {
+                "help": "Tag an issue",
+                "usage": [
+                    "tag <tag> <sha1>"
+                ]
+            },
+            "options": {
+                "local": [
+                    {
+                        "long": "last",
+                        "help": "tag last active issue"
+                    },
+                    {
+                        "short": "r",
+                        "long": "remove",
+                        "help": "remove tag"
+                    }
+                ]
+            },
+            "commands": {
+                "ls": {
+                    "doc": {
+                        "help": "List available tags"
+                    },
+                    "operands": {
+                        "no": [0, 0]
+                    }
+                },
+                "new": {
+                    "doc": {
+                        "help": "Create new tag"
+                    },
+                    "options": {
+                        "local": [
+                            {
+                                "short": "f",
+                                "long": "force",
+                                "help": "force tag creation overwriting all previously recorded changes"
+                            },
+                            {
+                                "short": "m",
+                                "long": "missing",
+                                "help": "create missing tags"
+                            }
+                        ]
+                    },
+                    "operands": {
+                        "no": [1, 1],
+                        "help": {
+                            "names": ["tag"]
+                        },
+                        "with": {
+                            "--missing": [0, 0]
+                        }
+                    }
+                },
+                "rm": {
+                    "doc": {
+                        "help": "Remove a tag repository"
+                    },
+                    "operands": {
+                        "no": [1],
+                        "help": {
+                            "names": ["tag"]
+                        }
+                    }
+                },
+                "show": {
+                    "doc": {
+                        "help": "Show details of a tag"
+                    },
+                    "operands": {
+                        "no": [1, 1],
+                        "help": {
+                            "names": ["tag"]
+                        }
+                    }
+                }
+            },
+            "operands": {
+                "no": [2, 2],
+                "help": {
+                    "names": ["tag", "issue"]
+                },
+                "with": {
+                    "--last": [1, 1]
+                }
+            }
+        },
+        "param": {
+            "doc": {
+                "help": "Set a custom parameter on an issue",
+                "usage": [
+                    "param <sha1> <key> <value>",
+                    "param -r <sha1> <key>"
+                ]
+            },
+            "options": {
+                "local": [
+                    {
+                        "long": "last",
+                        "help": "set parameter on last active issue"
+                    },
+                    {
+                        "short": "r",
+                        "long": "remove",
+                        "help": "remove a parameter"
+                    }
+                ]
+            },
+            "operands": {
+                "no": [3, 3],
+                "help": {
+                    "names": ["issue", "key", "value"]
+                },
+                "with": {
+                    "--remove": [2, 2],
+                    "--last": [2, 2]
+                }
+            }
+        },
+        "show": {
+            "doc": {
+                "help": "Show information about issues.",
+                "usage": [
+                    "show <issue>",
+                    "show --comments <issue>"
+                ]
+            },
+            "options": {
+                "global": [
+                    {
+                        "long": "last",
+                        "help": "display last active issue"
+                    }
+                ],
+                "local": [
+                    {
+                        "short": "i",
+                        "long": "index",
+                        "help": "index selected issue before showing it"
+                    },
+                    {
+                        "short": "c",
+                        "long": "comments",
+                        "help": "show comment thread (if exists)"
+                    }
+                ]
+            },
+            "commands": {
+                "log": {
+                    "doc": {
+                        "help": "Show history of an issue"
+                    },
+                    "operands": {
+                        "no": [1, 1],
+                        "help": {
+                            "names": ["issue"]
+                        },
+                        "with": {
+                            "--last": [0, 0]
+                        }
+                    }
+                }
+            },
+            "operands": {
+                "no": [1, 1],
+                "help": {
+                    "names": ["issue"]
+                },
+                "with": {
+                    "--last": [0, 0]
+                }
+            }
+        },
+        "config": {
+            "doc": {
+                "help": "Configure the issue program.",
+                "usage": [
+                    "config [--global] set <key> [<value>]",
+                    "config [--global] get <key>"
+                ]
+            },
+            "options": {
+                "global": [
+                    {
+                        "short": "g",
+                        "long": "global",
+                        "help": "operate on global configuration"
+                    }
+                ]
+            },
+            "commands": {
+                "get": {
+                    "doc": {
+                        "help": "Obtain values set inside configuration file(s)",
+                        "usage": [
+                            "config [--global] get [--safe] <key>"
+                        ]
+                    },
+                    "options": {
+                        "local": [
+                            {
+                                "short": "s",
+                                "long": "safe",
+                                "help": "if the key is not present in the configuration, assume 'null' value instead of failing"
+                            }
+                        ]
+                    },
+                    "operands": {
+                        "no": [1, 1],
+                        "help": {
+                            "names": ["key"]
+                        }
+                    }
+                },
+                "set": {
+                    "doc": {
+                        "help": "Set values in configuration file(s)",
+                        "usage": [
+                            "config [--global] set [--null] <key> [<value>]"
+                        ]
+                    },
+                    "options": {
+                        "local": [
+                            {
+                                "short": "n",
+                                "long": "null",
+                                "help": "insert 'null' value"
+                            },
+                            {
+                                "short": "u",
+                                "long": "unset",
+                                "help": "remove value from config"
+                            }
+                        ]
+                    },
+                    "operands": {
+                        "no": [1, 2],
+                        "help": {
+                            "names": ["key", "value"]
+                        }
+                    }
+                },
+                "dump": {
+                    "doc": {
+                        "help": "Print configuration to standard output"
+                    },
+                    "options": {
+                        "local": [
+                            {
+                                "short": "v",
+                                "long": "verbose",
+                                "help": "generate human-readable JSON"
+                            }
+                        ]
+                    },
+                    "operands": {
+                        "no": [0, 0]
+                    }
+                }
+            },
+            "operands": {
+                "no": [0, 0]
+            }
+        },
+        "remote": {
+            "doc": {
+                "help": "Add remote issues repositories.",
+                "usage": [
+                    "remote set foo user@host.domain:devel/project/.issue"
+                ]
+            },
+            "commands": {
+                "ls": {
+                    "doc": {
+                        "help": "List available remote repositories"
+                    },
+                    "operands": {
+                        "no": [0, 0]
+                    }
+                },
+                "set": {
+                    "doc": {
+                        "help": "Set new URL for an existing repository, or add new repository",
+                        "usage": [
+                            "remote set <name> <url>"
+                        ]
+                    },
+                    "options": {
+                        "local": [
+                            {
+                                "short": "k",
+                                "long": "key",
+                                "arguments": ["str"],
+                                "requires": ["--value"],
+                                "conflicts": ["--url"],
+                                "help": "set given config key in selected remote"
+                            },
+                            {
+                                "long": "value",
+                                "arguments": ["str"],
+                                "requires": ["--key"],
+                                "help": "set this value for given key in config for selected remote"
+                            },
+                            {
+                                "long": "U",
+                                "long": "unset",
+                                "arguments": ["str"],
+                                "help": "remove a key in config for selected remote"
+                            },
+                            {
+                                "short": "u",
+                                "long": "url",
+                                "arguments": ["str"],
+                                "help": "set SSH URL for selected remote"
+                            }
+                        ]
+                    },
+                    "operands": {
+                        "no": [2, 2],
+                        "help": {
+                            "names": ["remote-name", "url"]
+                        },
+                        "with": {
+                            "--url": [1, 1],
+                            "--key": [1, 1]
+                        }
+                    }
+                },
+                "rm": {
+                    "doc": {
+                        "help": "Remove a remote repository"
+                    },
+                    "operands": {
+                        "no": [1, 1],
+                        "help": {
+                            "names": ["remote-name"]
+                        }
+                    }
+                },
+                "show": {
+                    "doc": {
+                        "help": "Show config of a remote repository"
+                    },
+                    "operands": {
+                        "no": [1, 1],
+                        "help": {
+                            "names": ["remote-name"]
+                        }
+                    }
+                }
+            },
+            "operands": {
+                "no": [0, 0]
+            }
+        },
+        "fetch": {
+            "doc": {
+                "help": "Fetch objects from remote repositories",
+                "usage": [
+                    "fetch [--probe]"
+                ]
+            },
+            "options": {
+                "local": [
+                    {
+                        "short": "p",
+                        "long": "probe",
+                        "help": "only probe the remotes for their state, don't download issue objects"
+                    },
+                    {
+                        "short": "i",
+                        "long": "index",
+                        "conflicts": ["--status"],
+                        "help": "index repository after fetching objects"
+                    },
+                    {
+                        "short": "s",
+                        "long": "status",
+                        "help": "fetch only status specifications from remotes"
+                    },
+                    {
+                        "short": "U",
+                        "long": "unknown-status",
+                        "implies": ["--status"],
+                        "help": "fetch status specifications from remotes with 'unknown' status, implies --status"
+                    }
+                ]
+            },
+            "operands": {
+                "no": [0],
+                "help": {
+                    "names": ["remote-name"]
+                }
+            }
+        },
+        "publish": {
+            "doc": {
+                "help": "Publish issues on an remote",
+                "usage": [
+                    "publish [<remote>...]"
+                ]
+            },
+            "options": {
+                "local": [
+                    {
+                        "short": "p",
+                        "long": "pack",
+                        "help": "pack objects before publishing"
+                    },
+                    {
+                        "short": "r",
+                        "long": "republish",
+                        "help": "republish full pack, i.e. push all objects to the remote and don't check if they exist there or not"
+                    },
+                    {
+                        "short": "f",
+                        "long": "fetch",
+                        "help": "fetch objects from remote before publishing"
+                    }
+                ]
+            },
+            "operands": {
+                "no": [0],
+                "help": {
+                    "names": ["remote-name"]
+                }
+            }
+        },
+        "index": {
+            "doc": {
+                "help": "Index issues",
+                "usage": [
+                    "index [<issue>...]"
+                ]
+            },
+            "options": {
+                "local": [
+                    {
+                        "short": "p",
+                        "long": "pack",
+                        "help": "pack objects after indexing"
+                    },
+                    {
+                        "short": "r",
+                        "long": "reverse",
+                        "help": "reverse indexing - build diffs from indexed issues"
+                    }
+                ]
+            },
+            "operands": {
+                "no": [0],
+                "with": {
+                    "--reverse": [0, 0]
+                }
+            }
+        },
+        "clone": {
+            "doc": {
+                "help": "Clone remote issue repository"
+            },
+            "options": {
+                "local": [
+                    {
+                        "short": "n",
+                        "long": "name",
+                        "arguments": ["str"],
+                        "help": "set name for initial remote, by default it is 'origin'"
+                    },
+                    {
+                        "short": "f",
+                        "long": "force",
+                        "help": "force initialisation if necessary"
+                    }
+                ]
+            },
+            "operands": {
+                "no": [1, 1],
+                "help": {
+                    "names": ["url"]
+                }
+            }
+        },
+        "chain": {
+            "doc": {
+                "help": "Chain issues together"
+            },
+            "commands": {
+                "attach": {
+                    "operands": {
+                        "no": [2],
+                        "help": {
+                            "names": ["master-issue", "attached-issue"]
+                        }
+                    }
+                },
+                "link": {
+                    "operands": {
+                        "no": [2],
+                        "help": {
+                            "names": ["blocked-issue", "blocking-issue"]
+                        },
+                        "with": {
+                            "--last": [1]
+                        }
+                    }
+                },
+                "unlink": {
+                }
+            },
+            "operands": {
+                "no": [0, 0]
+            }
+        },
+        "statistics": {
+            "doc": {
+                "help": "Display statistical information about issues inside repository.",
+                "usage": [
+                    "statistics [--verbose]"
+                ]
+            }
+        },
+        "release": {
+            "doc": {
+                "help": "Manage releases.",
+                "usage": [
+                    "release open <version>",
+                    "release close -m \"<message>\" <version>",
+                    "release ls",
+                    "release notes <version>"
+                ]
+            },
+            "commands": {
+                "open": {
+                    "operands": {
+                        "no": [1, 1]
+                    },
+                    "options": {
+                        "local": [
+                            {
+                                "long": "force",
+                                "short": "f",
+                                "help": "force opening a release (possibly overwriting old release with the same name)"
+                            }
+                        ]
+                    }
+                },
+                "close": {
+                    "operands": {
+                        "no": [1, 1]
+                    },
+                    "options": {
+                        "local": [
+                            {
+                                "long": "message",
+                                "short": "m",
+                                "arguments": ["str"],
+                                "help": "release message"
+                            }
+                        ]
+                    }
+                },
+                "ls": {
+                    "operands": {
+                        "no": [0, 0]
+                    }
+                },
+                "notes": {
+                    "operands": {
+                        "no": [1, 1]
+                    },
+                    "options": {
+                        "local": [
+                            {
+                                "long": "closed",
+                                "short": "c",
+                                "help": "list issues closed in a release"
+                            },
+                            {
+                                "long": "opened",
+                                "short": "o",
+                                "help": "list issues opened in a release"
+                            },
+                            {
+                                "long": "issues",
+                                "short": "i",
+                                "help": "list both closed and opened issues (shortcut for -oc)",
+                                "implies": ["--closed", "--opened"]
+                            }
+                        ]
+                    }
+                }
+            }
+        },
+        "log": {
+            "doc": {
+                "help": "Display log of local events. Useful for remembering what you were working on."
+            },
+            "options": {
+                "local": [
+                    {
+                        "short": "H",
+                        "long": "head",
+                        "arguments": ["count:int"],
+                        "help": "display N head entries"
+                    },
+                    {
+                        "short": "T",
+                        "long": "tail",
+                        "arguments": ["count:int"],
+                        "help": "display N tail entries"
+                    }
+                ]
+            },
+            "commands": {
+                "squash": {
+                    "doc": {
+                        "help": "Squash similar entries to compress the log."
+                    },
+                    "options": {
+                        "local": [
+                            {
+                                "short": "A",
+                                "long": "aggressive",
+                                "plural": true,
+                                "help": "be aggressive when compressing and squash similar events together (e.g. [slug, show] squashes to [slug])"
+                            }
+                        ]
+                    }
+                }
+            },
+            "operands": {
+                "no": [0, 0]
+            }
+        }
+    },
+    "operands": {
+        "no": [0, 0]
+    }
+}
